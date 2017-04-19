@@ -467,8 +467,10 @@ int main(int argc, char **argv)
 		for (int n=0; n<3; n++)
                       free(argv[n]);	
 		free(argv);
-		//free(end);
-		err(errno, "xs_get_domain_path()");
+		free(end);
+		//err(errno, "xs_get_domain_path()");
+		fprintf(stderr, "Could not get domain path\n");
+		exit(EINVAL);
 	}
 
 	if (type == CONSOLE_INVAL) {
@@ -478,16 +480,20 @@ int main(int argc, char **argv)
 			for (int n=0; n<3; n++)
                       		free(argv[n]);
 			free(argv);
-		//	free(end);
-			err(errno, "Could not open xc interface");
+			free(end);
+			//err(errno, "Could not open xc interface");
+			fprintf(stderr, "Could not open xc interface\n");
+			exit(EINVAL);
 		 } if ( (xc_domain_getinfo(xc_handle, domid, 1, &xcinfo) != 1) ||
 		     (xcinfo.domid != domid) ) {
 			xc_interface_close(xc_handle);
 			for (int n=0; n<3; n++)
                       		free(argv[n]);
 			free(argv);
-		//	free(end);
-			err(errno, "Failed to get domain information");
+			free(end);
+			fprintf(stderr, "Failed to get domain Info\n");
+			exit(EINVAL);
+			//err(errno, "Failed to get domain information");
 		}
 		/* default to pv console for pv guests and serial for hvm guests */
 		if (xcinfo.hvm)
@@ -503,7 +509,9 @@ int main(int argc, char **argv)
                       	free(argv[n]);
 		free(argv);
 		//free(end);
-		err(ENOMEM, "malloc");
+		fprintf(stderr, "malloc error\n");
+		exit(EINVAL);
+		//err(ENOMEM, "malloc");
 	} if (type == CONSOLE_SERIAL) {
 		//snprintf(path, strlen(dom_path) + strlen("/serial/0/tty") + 5, "%s/serial/%d/tty", dom_path, num);
 		snprintf(path, 25 + 5, "%s/serial/%d/tty", dom_path, num);
@@ -532,7 +540,7 @@ int main(int argc, char **argv)
                       	free(argv[n]);
 		free(argv);
 		free(path);
-		//free(end);
+		free(end);
 		exit(EINVAL);
 	}
 
@@ -541,7 +549,7 @@ int main(int argc, char **argv)
                         free(argv[n]);
 		free(argv);
 		free(path);
-		//free(end);
+		free(end);
                 exit(EINVAL); 
 	}
 	atexit(console_unlock);
@@ -550,9 +558,12 @@ int main(int argc, char **argv)
 	if (!xs_watch(xs, path, "")) {
 		for (int n=0; n<3; n++)
                       	free(argv[n]);
+		free(argv);
 		free(path);
-		//free(end);
-		err(errno, "Can't set watch for console pty");
+		free(end);
+		fprintf(stderr, "Can't set watch for console pty\n");
+		exit(EINVAL);
+		//err(errno, "Can't set watch for console pty");
 	}
 	//xsfd = xs_fileno(xs);
 
@@ -566,8 +577,10 @@ int main(int argc, char **argv)
                       	free(argv[n]);
 		free(argv);
 		free(path);
-		//free(end);
-		err(errno, "Could not read tty from store");
+		free(end);
+		fprintf(stderr, "Could not read tty from store\n");
+		exit(EINVAL);
+		//err(errno, "Could not read tty from store");
 	}
 
 	init_term(spty, &attr);
@@ -589,9 +602,11 @@ int main(int argc, char **argv)
 			for (int n=0; n<3; n++)
                       		free(argv[n]);
 			free(argv);
-		//	free(end);
-			err(errno, "Could not notify parent with fd %d",
-			    start_notify_fd);
+			free(end);
+			fprintf(stderr, "Could not notify parent\n");
+			exit(EINVAL);
+			//err(errno, "Could not notify parent with fd %d",
+			//    start_notify_fd);
 		}
 		close(start_notify_fd);
 	}
@@ -602,7 +617,7 @@ int main(int argc, char **argv)
 	for (int n=0; n<3; n++)
 		free(argv[n]);
 	free(argv);
-	//free(end);
+	free(end);
 	//if (dom_path != NULL)
 	//	free(dom_path);
  
